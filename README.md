@@ -28,7 +28,7 @@ This app monitors tweets from the most popular X / Twitter users and notifies su
 
 1. Clone the repository
 ```
-git clone https://github.com/markliu202/MemeCoinAnnouncer.git
+git clone https://github.com/markliu22/MemeCoinAnnouncer.git
 ```
 
 2. Install dependencies
