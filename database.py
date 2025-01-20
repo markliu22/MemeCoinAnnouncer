@@ -35,14 +35,27 @@ class Database:
             
         try:
             with self.get_connection() as conn:
-                conn.execute(
-                    "INSERT INTO subscribers (email, phone) VALUES (?, ?)",
-                    (email, phone)
-                )
+                # First try to reactivate existing subscriber (subscribe, unsubscribe, then subscribe again case)
+                if email:
+                    conn.execute(
+                        "UPDATE subscribers SET is_active = 1 WHERE email = ?",
+                        (email,)
+                    )
+                if phone:
+                    conn.execute(
+                        "UPDATE subscribers SET is_active = 1 WHERE phone = ?",
+                        (phone,)
+                    )
+                
+                # If no rows were updated, insert new subscriber
+                if conn.total_changes == 0:
+                    conn.execute(
+                        "INSERT INTO subscribers (email, phone) VALUES (?, ?)",
+                        (email, phone)
+                    )
                 conn.commit()
                 return True
         except sqlite3.IntegrityError:
-            # Handle duplicate email/phone
             return False
 
     def get_all_active_subscribers(self) -> List[Subscriber]:
