@@ -181,8 +181,8 @@ async def monitor_users():
                                     print("[INFO] Cohere confirmed this is likely a crypto announcement!")
                                     message = "🚨 LIKELY CRYPTO ANNOUNCEMENT 🚨\n" + message
                                 await notify_subscribers(message)
-                        else:
-                            # print("[DEBUG] No $TOKEN patterns found in this tweet")
+                        # else:
+                        #     print("[DEBUG] No $TOKEN patterns found in this tweet")
                     
                     await asyncio.sleep(DELAY_BETWEEN_USERS) # avoid rate limiting
                     
