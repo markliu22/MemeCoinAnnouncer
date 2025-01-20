@@ -13,6 +13,9 @@ from flask_cors import CORS
 import cohere
 from typing import Optional
 
+from dotenv import load_dotenv
+load_dotenv() 
+
 # Add environment variable access
 TWITTER_USERNAME = os.getenv('TWITTER_USERNAME')
 TWITTER_EMAIL = os.getenv('TWITTER_EMAIL')

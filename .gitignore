@@ -1,5 +1,5 @@
-# Ignore config file with sensitive data
-config.py
+# Ignore env file with environment variables
+.env
 
 # Python
 __pycache__/
