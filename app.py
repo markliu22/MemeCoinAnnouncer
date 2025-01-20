@@ -9,11 +9,13 @@ import threading
 from config import *
 import time
 from database import Database, Subscriber
+from flask_cors import CORS
 
 users_file = "users_to_track.txt"
 # users_file = "users_to_track_tmp.txt"
 
 app = Flask(__name__)
+CORS(app)
 
 # Twikit twitter client
 twitter_client = Client("en-US")
