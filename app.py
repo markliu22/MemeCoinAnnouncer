@@ -13,8 +13,7 @@ from flask_cors import CORS
 import cohere
 from typing import Optional
 
-# users_file = "users_to_track.txt"
-users_file = "users_to_track_tmp.txt"
+users_file = "users_to_track.txt"
 
 app = Flask(__name__)
 CORS(app)
@@ -160,19 +159,19 @@ async def monitor_users():
                     current_delay = base_delay
                     
                     for tweet in tweets:
-                        print(f"\n[DEBUG] Processing tweet: {tweet.text}")
+                        # print(f"\n[DEBUG] Processing tweet: {tweet.text}")
                         
                         # Look for token symbols ($XXX pattern)
                         words = tweet.text.split()
                         tokens = [word for word in words if word.startswith('$') and len(word) > 1]
                         
                         if tokens:
-                            print(f"[DEBUG] Found ${tokens} pattern in tweet!")
+                            # print(f"[DEBUG] Found ${tokens} pattern in tweet!")
                             print(f"[INFO] Making request to Cohere to analyze: {tweet.text}")
                             
                             # Try to verify if it's a crypto announcement using Cohere
                             is_crypto = await check_crypto_announcement(tweet.text)
-                            print(f"[DEBUG] Cohere analysis result: {is_crypto}")
+                            # print(f"[DEBUG] Cohere analysis result: {is_crypto}")
                             
                             # If Cohere fails or confirms it's a crypto announcement, proceed with notification
                             if is_crypto is None or is_crypto:
@@ -183,9 +182,9 @@ async def monitor_users():
                                     message = "🚨 LIKELY CRYPTO ANNOUNCEMENT 🚨\n" + message
                                 await notify_subscribers(message)
                         else:
-                            print("[DEBUG] No $TOKEN patterns found in this tweet")
+                            # print("[DEBUG] No $TOKEN patterns found in this tweet")
                     
-                    await asyncio.sleep(DELAY_BETWEEN_USERS)
+                    await asyncio.sleep(DELAY_BETWEEN_USERS) # avoid rate limiting
                     
                 except Exception as e:
                     if "Rate limit exceeded" in str(e):
