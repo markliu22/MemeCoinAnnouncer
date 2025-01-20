@@ -7,6 +7,7 @@ import smtplib
 from email.mime.text import MIMEText
 import threading
 from config import *
+import time
 
 
 app = Flask(__name__)
@@ -71,6 +72,24 @@ def notify_subscribers(message):
 # Monitor tweets from specified users
 async def monitor_users():
     global users_to_track
+    
+    # Rate limit calculations
+    RATE_LIMIT_REQUESTS = 50  # Requests allowed per 15-min window https://github.com/d60/twikit/blob/main/ratelimits.md
+    RATE_LIMIT_WINDOW = 15 * 60  # 15 minutes in seconds
+    USERS_COUNT = len(users_to_track)
+    
+    # Calculate optimal delay between users
+    # Adding 10% buffer for safety
+    DELAY_BETWEEN_USERS = (RATE_LIMIT_WINDOW / RATE_LIMIT_REQUESTS) * 1.1  # ~19.8 seconds
+    
+    base_delay = RATE_LIMIT_WINDOW / RATE_LIMIT_REQUESTS  # ~18 seconds
+    max_delay = 3600  # Max delay 1 hour
+    current_delay = base_delay
+    
+    print(f"[INFO] Monitoring {USERS_COUNT} users")
+    print(f"[INFO] Delay between users: {DELAY_BETWEEN_USERS:.2f}s")
+    print(f"[INFO] Complete cycle time: {(DELAY_BETWEEN_USERS * USERS_COUNT)/60:.2f} minutes")
+    
     try:
         await twitter_client.login(
             auth_info_1=TWITTER_USERNAME,
@@ -78,26 +97,48 @@ async def monitor_users():
             password=TWITTER_PASSWORD,
         )
         print("[INFO] Successfully logged into Twikit.")
+        
         while True:
+            cycle_start_time = time.time()
+            
             for username in users_to_track:
                 try:
-                    # Get user details and fetch their tweets
                     print(f"[INFO] Fetching tweets for @{username}...")
                     user = await twitter_client.get_user_by_screen_name(username)
                     user_id = user.id
                     tweets = await twitter_client.get_user_tweets(user_id, "Tweets", count=20)
-
+                    
+                    # Reset delay on successful request
+                    current_delay = base_delay
+                    
                     for tweet in tweets:
-                        print(f"[INFO] Processing tweet from @{username}: {tweet.text}")
-                        if "memecoin" in tweet.text.lower() or "crypto" in tweet.text.lower():
-                            message = f"🚀 @{username}: {tweet.text}"
-                            print(f"[INFO] Found relevant tweet: {tweet.text}")
+                        # Look for token symbols ($XXX pattern)
+                        words = tweet.text.split()
+                        tokens = [word for word in words if word.startswith('$') and len(word) > 1 and word[1:].isupper()]
+                        if tokens:
+                            message = f"🚀 @{username} mentioned tokens {', '.join(tokens)}: {tweet.text}"
+                            print(f"[INFO] Found token mention: {tweet.text}")
                             notify_subscribers(message)
+                    
+                    await asyncio.sleep(DELAY_BETWEEN_USERS)
+                    
                 except Exception as e:
-                    print(f"[ERROR] Failed to fetch tweets for @{username}: {e}")
-            await asyncio.sleep(60)  # Wait 1 minute before fetching again
+                    if "Rate limit exceeded" in str(e):
+                        print(f"[WARNING] Rate limit hit, backing off for {current_delay} seconds...")
+                        await asyncio.sleep(current_delay)
+                        current_delay = min(current_delay * 2, max_delay)
+                    else:
+                        print(f"[ERROR] Failed to fetch tweets for @{username}: {e}")
+                        await asyncio.sleep(5)
+            
+            cycle_end_time = time.time()
+            cycle_duration = cycle_end_time - cycle_start_time
+            print(f"[INFO] Completed cycle in {cycle_duration/60:.2f} minutes")
+            
     except Exception as e:
         print(f"[ERROR] Failed to monitor users: {e}")
+        await asyncio.sleep(current_delay)
+        await monitor_users()
 
 @app.route('/')
 def home():

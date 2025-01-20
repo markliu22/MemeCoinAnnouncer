@@ -1,8 +1,13 @@
 # Twitter API credentials
-TWITTER_API_KEY = "your_twitter_api_key"
-TWITTER_API_SECRET = "your_twitter_api_secret"
-TWITTER_ACCESS_TOKEN = "your_twitter_access_token"
-TWITTER_ACCESS_TOKEN_SECRET = "your_twitter_access_token_secret"
+# TWITTER_API_KEY = "your_twitter_api_key"
+# TWITTER_API_SECRET = "your_twitter_api_secret"
+# TWITTER_ACCESS_TOKEN = "your_twitter_access_token"
+# TWITTER_ACCESS_TOKEN_SECRET = "your_twitter_access_token_secret"
+
+# New Twitter Account
+TWITTER_USERNAME = "your_twitter_username"
+TWITTER_EMAIL = "your_twitter_email"
+TWITTER_PASSWORD = "your_twitter_password"
 
 # Twilio SMS credentials
 TWILIO_ACCOUNT_SID = "your_twilio_account_sid"
