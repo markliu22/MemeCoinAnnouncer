@@ -10,9 +10,11 @@ from config import *
 import time
 from database import Database, Subscriber
 from flask_cors import CORS
+import cohere
+from typing import Optional
 
-users_file = "users_to_track.txt"
-# users_file = "users_to_track_tmp.txt"
+# users_file = "users_to_track.txt"
+users_file = "users_to_track_tmp.txt"
 
 app = Flask(__name__)
 CORS(app)
@@ -88,6 +90,33 @@ async def notify_subscribers(message: str):
             except Exception as e:
                 print(f"Failed to send SMS to {subscriber.phone}: {e}")
 
+async def check_crypto_announcement(tweet_text: str) -> Optional[bool]:
+    """
+    Use Cohere LLM to check if a tweet is announcing a cryptocurrency.
+    Returns True if it's a crypto announcement, False if not, None if error.
+    """
+    try:
+        co = cohere.ClientV2(COHERE_API_KEY)
+        
+        prompt = f"""Analyze this tweet and determine if it's announcing a new cryptocurrency or token.
+        Only respond with 'yes' if it's clearly announcing a new cryptocurrency/token, otherwise respond with 'no'.
+        
+        Tweet: {tweet_text}
+        
+        Answer with only 'yes' or 'no':"""
+        
+        response = co.chat(
+            model="command-r-plus",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        
+        answer = response.message.text.strip().lower()
+        return answer == "yes"
+        
+    except Exception as e:
+        print(f"[WARNING] Cohere API error: {e}")
+        return None
+
 # Monitor tweets from specified users
 async def monitor_users():
     global users_to_track
@@ -131,13 +160,30 @@ async def monitor_users():
                     current_delay = base_delay
                     
                     for tweet in tweets:
+                        print(f"\n[DEBUG] Processing tweet: {tweet.text}")
+                        
                         # Look for token symbols ($XXX pattern)
                         words = tweet.text.split()
-                        tokens = [word for word in words if word.startswith('$') and len(word) > 1 and word[1:].isupper()]
+                        tokens = [word for word in words if word.startswith('$') and len(word) > 1]
+                        
                         if tokens:
-                            message = f"🚀 @{username} mentioned tokens {', '.join(tokens)}: {tweet.text}"
-                            print(f"[INFO] Found token mention: {tweet.text}")
-                            await notify_subscribers(message)
+                            print(f"[DEBUG] Found ${tokens} pattern in tweet!")
+                            print(f"[INFO] Making request to Cohere to analyze: {tweet.text}")
+                            
+                            # Try to verify if it's a crypto announcement using Cohere
+                            is_crypto = await check_crypto_announcement(tweet.text)
+                            print(f"[DEBUG] Cohere analysis result: {is_crypto}")
+                            
+                            # If Cohere fails or confirms it's a crypto announcement, proceed with notification
+                            if is_crypto is None or is_crypto:
+                                message = f"🚀 @{username} mentioned tokens {', '.join(tokens)}: {tweet.text}"
+                                print(f"[INFO] Found token mention: {tweet.text}")
+                                if is_crypto is True:
+                                    print("[INFO] Cohere confirmed this is likely a crypto announcement!")
+                                    message = "🚨 LIKELY CRYPTO ANNOUNCEMENT 🚨\n" + message
+                                await notify_subscribers(message)
+                        else:
+                            print("[DEBUG] No $TOKEN patterns found in this tweet")
                     
                     await asyncio.sleep(DELAY_BETWEEN_USERS)
                     
@@ -217,7 +263,7 @@ if __name__ == "__main__":
         asyncio.run(monitor_users())
 
     print("[INFO] Starting monitoring thread...")
-    # threading.Thread(target=start_monitoring).start()
+    threading.Thread(target=start_monitoring).start()
 
     # Start Flask server
     print("[INFO] Starting Flask server on port 5001...")

@@ -19,3 +19,6 @@ EMAIL_ADDRESS = "your_email@example.com"
 EMAIL_PASSWORD = "your_email_password"
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587 
+
+# Cohere API key
+COHERE_API_KEY = "your_cohere_api_key"
