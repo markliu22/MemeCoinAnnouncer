@@ -9,6 +9,8 @@ import threading
 from config import *
 import time
 
+users_file = "users_to_track.txt"
+# users_file = "users_to_track_tmp.txt"
 
 app = Flask(__name__)
 
@@ -17,6 +19,13 @@ twitter_client = Client("en-US")
 
 # Format: {"email": ..., "phone": ..., "notification_type": ...}
 subscribers = []
+# subscribers = [
+#     {
+#         "email": "example@gmail.com",
+#         "phone": "+16479990000",
+#         "notification_type": "sms"
+#     }
+# ]
 
 # Twitter users to track
 users_to_track = []
@@ -25,7 +34,7 @@ users_to_track = []
 def load_users_to_track():
     global users_to_track
     try:
-        with open("users_to_track.txt", "r") as f:
+        with open(users_file, "r") as f:
             users_to_track = [line.strip() for line in f if line.strip()]
         print(f"[INFO] Tracking {len(users_to_track)} users.")
     except FileNotFoundError:
@@ -34,7 +43,7 @@ def load_users_to_track():
 # Send SMS notification
 def send_sms(to, message):
     try:
-        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        client = TwilioClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
         client.messages.create(body=message, from_=TWILIO_PHONE_NUMBER, to=to)
         print(f"[INFO] SMS sent to {to}: {message}")
     except Exception as e:
