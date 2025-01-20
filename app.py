@@ -1,6 +1,6 @@
 import os
 import asyncio
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from twikit import Client
 from twilio.rest import Client as TwilioClient
 import smtplib
@@ -8,6 +8,7 @@ from email.mime.text import MIMEText
 import threading
 from config import *
 import time
+from database import Database, Subscriber
 
 users_file = "users_to_track.txt"
 # users_file = "users_to_track_tmp.txt"
@@ -16,6 +17,9 @@ app = Flask(__name__)
 
 # Twikit twitter client
 twitter_client = Client("en-US")
+
+# Initialize database
+db = Database()
 
 # Format: {"email": ..., "phone": ..., "notification_type": ...}
 subscribers = []
@@ -66,17 +70,21 @@ def send_email(to, subject, body):
         print(f"[ERROR] Failed to send email to {to}: {e}")
 
 # Notify subscribers
-def notify_subscribers(message):
-    global subscribers
-    if not subscribers:
-        print("[WARNING] No subscribers to notify.")
-        return
-
+async def notify_subscribers(message: str):
+    subscribers = db.get_all_active_subscribers()
+    
     for subscriber in subscribers:
-        if subscriber.get("notification_type") == "sms" and subscriber.get("phone"):
-            send_sms(subscriber["phone"], message)
-        elif subscriber.get("notification_type") == "email" and subscriber.get("email"):
-            send_email(subscriber["email"], "New Tweet Alert", message)
+        if subscriber.email:
+            try:
+                send_email(subscriber.email, "New Memecoin Alert! 🚀", message)
+            except Exception as e:
+                print(f"Failed to send email to {subscriber.email}: {e}")
+                
+        if subscriber.phone:
+            try:
+                send_sms(subscriber.phone, message)
+            except Exception as e:
+                print(f"Failed to send SMS to {subscriber.phone}: {e}")
 
 # Monitor tweets from specified users
 async def monitor_users():
@@ -127,7 +135,7 @@ async def monitor_users():
                         if tokens:
                             message = f"🚀 @{username} mentioned tokens {', '.join(tokens)}: {tweet.text}"
                             print(f"[INFO] Found token mention: {tweet.text}")
-                            notify_subscribers(message)
+                            await notify_subscribers(message)
                     
                     await asyncio.sleep(DELAY_BETWEEN_USERS)
                     
@@ -153,6 +161,50 @@ async def monitor_users():
 def home():
     return "Twitter Tracker is running!"
 
+@app.route('/subscribe', methods=['POST'])
+def subscribe():
+    data = request.json
+    email = data.get('email')
+    phone = data.get('phone')
+    
+    if not email and not phone:
+        return jsonify({'error': 'Email or phone required'}), 400
+        
+    success = db.add_subscriber(email=email, phone=phone)
+    if success:
+        return jsonify({'message': 'Subscription successful'}), 200
+    else:
+        return jsonify({'error': 'Subscription failed'}), 400
+
+@app.route('/unsubscribe', methods=['POST'])
+def unsubscribe():
+    data = request.json
+    email = data.get('email')
+    phone = data.get('phone')
+    
+    if not email and not phone:
+        return jsonify({'error': 'Email or phone required'}), 400
+        
+    success = db.deactivate_subscriber(email=email, phone=phone)
+    if success:
+        return jsonify({'message': 'Unsubscription successful'}), 200
+    else:
+        return jsonify({'error': 'Unsubscription failed'}), 400
+
+@app.route('/subscribers', methods=['GET'])
+def get_subscribers():
+    subscribers = db.get_all_active_subscribers()
+    return jsonify({
+        'subscribers': [
+            {
+                'id': sub.id,
+                'email': sub.email,
+                'phone': sub.phone,
+                'is_active': sub.is_active
+            } for sub in subscribers
+        ]
+    })
+
 if __name__ == "__main__":
     # Load tracked users and start monitoring in a thread
     print("[INFO] Loading users to track...")
@@ -163,7 +215,7 @@ if __name__ == "__main__":
         asyncio.run(monitor_users())
 
     print("[INFO] Starting monitoring thread...")
-    threading.Thread(target=start_monitoring).start()
+    # threading.Thread(target=start_monitoring).start()
 
     # Start Flask server
     print("[INFO] Starting Flask server on port 5001...")

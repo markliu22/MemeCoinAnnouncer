@@ -48,3 +48,16 @@ python app.py
 ```
 
 7. Profit! Potentially... 
+
+
+TMP
+```
+# Subscribe
+curl -X POST http://localhost:5001/subscribe \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "phone": "+1234567890"}'
+
+# Unsubscribe
+curl -X POST http://localhost:5001/unsubscribe \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com"}'
