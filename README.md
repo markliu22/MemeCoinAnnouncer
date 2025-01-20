@@ -5,11 +5,11 @@ https://memecoinannouncer.com
 
 # Or Run Locally:
 
-## Introduction
+## Motivation
 It seems I'm always late to hear about these celebrity meme coins. By the time I hear about them, it's already too late.
-It would be nice to know about them right when they're announced without being constantly online. This way, I can buy and sell a little bit before they're inevitably rug pulled.
+It would be nice to know about them right when they're announced without constantly checking online. This way, I can buy and sell a little bit before any potential rug pull.
 
-This app monitors tweets from the most popular X / Twitter users and notifies subscribers via email/text if the tweet contains an announcement of a new cryptocurrency (looking for $TOKEN patterns).
+This app monitors tweets from the most popular X (Twitter) users and notifies subscribers via email/text if the tweet contains an announcement of a new cryptocurrency (looking for $TOKEN patterns).
 
 ## Features
 - Monitors tweets from top Twitter/X users in real-time
@@ -48,6 +48,11 @@ python app.py
 ```
 
 7. Profit! Potentially... 
+
+## Examples
+
+### Text Message Notification
+![Text Message Notification Example](assets/text_demo.png)
 
 
 TMP

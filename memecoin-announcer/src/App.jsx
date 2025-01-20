@@ -54,28 +54,40 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Welcome to MemeCoinAnnouncer 🚀</h1>
-      <p>Get notified when crypto influencers mention new tokens!</p>
+      <h1>Welcome to MemeCoinAnnouncer! 🚀</h1>
+      <p>Sign up to get notified (email, text, or both) when celebrities/influencers announce new tokens on X (Twitter)!</p>
       
       <div className="form">
         <input
           type="email"
-          placeholder="Enter your email"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="tel"
-          placeholder="Enter your phone number"
+          placeholder="Phone Number"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
         />
+        <p className="input-help">
+          For example,  +1 (123) 456-7890, please enter as: +11234567890
+        </p>
         <div className="buttons">
           <button onClick={handleSubscribe}>Subscribe</button>
           <button onClick={handleUnsubscribe} className="unsubscribe">
             Unsubscribe
           </button>
         </div>
+      </div>
+
+      <div className="github-link">
+        <p>
+          Check out source code here:{' '}
+          <a href="https://github.com/markliu22/MemeCoinAnnouncer" target="_blank" rel="noopener noreferrer">
+            GitHub
+          </a>
+        </p>
       </div>
     </div>
   );
