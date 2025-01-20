@@ -53,8 +53,7 @@ pip install -r requirements.txt
 ```
 
 4. Set up your credentials
-- Copy `config.template.py` to `config.py`
-- Fill in your credentials in `config.py`:
+- Fill in your credentials in `app.py`:
   - Twitter/X account details
   - Twilio credentials (for SMS)
   - Gmail credentials (for email). Note, do not put your Gmail password in the file. Instead, generate an app password for your Gmail account and put that for the password.

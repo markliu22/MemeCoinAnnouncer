@@ -6,12 +6,25 @@ from twilio.rest import Client as TwilioClient
 import smtplib
 from email.mime.text import MIMEText
 import threading
-from config import *
+# from config import *
 import time
 from database import Database, Subscriber
 from flask_cors import CORS
 import cohere
 from typing import Optional
+
+# Add environment variable access
+TWITTER_USERNAME = os.getenv('TWITTER_USERNAME')
+TWITTER_EMAIL = os.getenv('TWITTER_EMAIL')
+TWITTER_PASSWORD = os.getenv('TWITTER_PASSWORD')
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
+SMTP_SERVER = os.getenv('SMTP_SERVER')
+SMTP_PORT = int(os.getenv('SMTP_PORT', '587'))  # Default to 587 if not set
+COHERE_API_KEY = os.getenv('COHERE_API_KEY')
 
 users_file = "users_to_track.txt"
 
