@@ -4,10 +4,11 @@ import './App.css';
 function App() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
   const handleSubscribe = async () => {
     try {
-      const response = await fetch('http://localhost:5001/subscribe', {
+      const response = await fetch(`${API_URL}/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,7 +33,7 @@ function App() {
 
   const handleUnsubscribe = async () => {
     try {
-      const response = await fetch('http://localhost:5001/unsubscribe', {
+      const response = await fetch(`${API_URL}/unsubscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
