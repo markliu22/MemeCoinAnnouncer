@@ -13,10 +13,11 @@ from flask_cors import CORS
 import cohere
 from typing import Optional
 
+# To get variables when running locally
 from dotenv import load_dotenv
 load_dotenv() 
 
-# Add environment variable access
+# To get variables when deployed
 TWITTER_USERNAME = os.getenv('TWITTER_USERNAME')
 TWITTER_EMAIL = os.getenv('TWITTER_EMAIL')
 TWITTER_PASSWORD = os.getenv('TWITTER_PASSWORD')
@@ -217,7 +218,8 @@ async def monitor_users():
             
     except Exception as e:
         print(f"[ERROR] Failed to monitor users: {e}")
-        await asyncio.sleep(current_delay)
+        print("[INFO] Waiting 1 hour before retrying...")
+        await asyncio.sleep(3600)  # Wait for 1 hour
         await monitor_users()
 
 @app.route('/')
