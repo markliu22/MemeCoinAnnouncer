@@ -4,8 +4,7 @@
 https://memecoinannouncer.com
 
 ## Introduction
-It seems I'm always late to hear about these celebrity meme coins. By the time I hear about them, it's already too late.
-It would be nice to know about them right when they're announced without constantly checking online. This way, I can buy and sell a little bit before any potential rug pull.
+It seems that I'm always late to hear about these celebrity meme coins. It would be nice to know about them right when they're announced without having to constantly check online. This way, I can buy and sell a little bit before any potential rug pull.
 
 This app monitors tweets from the most popular X (Twitter) users and notifies subscribers via email/text if the tweet contains an announcement of a new cryptocurrency (looking for $TOKEN patterns).
 
@@ -53,7 +52,7 @@ pip install -r requirements.txt
 ```
 
 4. Set up your credentials
-- Fill in your credentials in `app.py`:
+- Create a `.env` file in the root directory and fill in your credentials like `.env.example`:
   - Twitter/X account details
   - Twilio credentials (for SMS)
   - Gmail credentials (for email). Note, do not put your Gmail password in the file. Instead, generate an app password for your Gmail account and put that for the password.
