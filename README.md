@@ -3,6 +3,8 @@
 # Subscribe Here: 
 https://memecoinannouncer.com
 
+![my sunshine](memecoin-announcer/public/sunshine.jpeg)
+
 ## Introduction
 It seems that I'm always late to hear about these celebrity meme coins. It would be nice to know about them right when they're announced without having to constantly check online. This way, I can buy and sell a little bit before any potential rug pull.
 
